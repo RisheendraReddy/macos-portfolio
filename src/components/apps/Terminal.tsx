@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { WindowState } from '../types'
+import { WindowState } from '../../types'
 import About from './About'
 import Projects from './Projects'
 import Experience from './Experience'

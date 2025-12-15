@@ -1,4 +1,4 @@
-import { Download, Mail, Phone, Linkedin, Github } from 'lucide-react'
+import { Download } from 'lucide-react'
 
 const Resume = () => {
   const handleDownload = () => {

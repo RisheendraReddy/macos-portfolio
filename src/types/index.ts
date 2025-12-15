@@ -1,3 +1,5 @@
+import type React from 'react'
+
 export interface WindowState {
   id: string
   title: string

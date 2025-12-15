@@ -1,6 +1,6 @@
 import React from 'react'
 import { Folder, FileText, Code, Mail } from 'lucide-react'
-import { WindowState } from '../types'
+import { WindowState } from '../../types'
 import About from './About'
 import Projects from './Projects'
 import Experience from './Experience'
