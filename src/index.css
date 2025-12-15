@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Ambient wallpaper drift – left↔right, minimized so edges stay hidden */
+.wallpaper-ambient-drift {
+  animation: wallpaper-ambient-drift 10s linear infinite;
+}
+
+@keyframes wallpaper-ambient-drift {
+  0% {
+    transform: translate3d(-8px, 0, 0);
+  }
+  50% {
+    transform: translate3d(8px, 0, 0);
+  }
+  100% {
+    transform: translate3d(-8px, 0, 0);
+  }
+}

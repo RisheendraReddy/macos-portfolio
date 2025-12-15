@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Cinematic Wallpaper</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .wallpaper-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('architectural-bg.jpg'); /* Replace with your image */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: transform 0.3s ease-out;
+      will-change: transform;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .lights-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.3s ease-out;
+      will-change: transform;
+    }
+
+    .window {
+      position: absolute;
+      cursor: pointer;
+      pointer-events: auto;
+      transform: translate(-50%, -50%);
+    }
+
+    .window-light {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      pointer-events: none;
+    }
+
+    .window-light.active {
+      opacity: 1;
+      animation: subtleFlicker 4s ease-in-out infinite;
+    }
+
+    .inner-glow {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(255, 200, 100, 0.6) 0%,
+        rgba(255, 150, 50, 0.3) 40%,
+        transparent 70%
+      );
+      filter: blur(8px);
+      transform: scale(1.5);
+    }
+
+    .outer-spill {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(255, 180, 80, 0.4) 0%,
+        transparent 60%
+      );
+      filter: blur(15px);
+      transform: scale(2);
+    }
+
+    .window-pane {
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 200, 100, 0.3);
+      background: linear-gradient(
+        135deg,
+        rgba(255, 220, 150, 0.2) 0%,
+        transparent 50%
+      );
+      box-shadow: inset 0 0 20px rgba(255, 200, 100, 0.3);
+    }
+
+    .window:hover:not(.lit) .hover-highlight {
+      opacity: 1;
+    }
+
+    .hover-highlight {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 70%
+      );
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .vignette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 0%,
+        rgba(0, 0, 0, 0.2) 100%
+      );
+      pointer-events: none;
+    }
+
+    @keyframes subtleFlicker {
+      0%, 100% { opacity: 1; }
+      48% { opacity: 0.95; }
+      49% { opacity: 0.98; }
+      50% { opacity: 0.96; }
+      51% { opacity: 0.99; }
+      52% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wallpaper-container">
+    <!-- Background with parallax -->
+    <div class="background" id="background"></div>
+    
+    <!-- Dark overlay -->
+    <div class="overlay"></div>
+    
+    <!-- Lights layer with parallax -->
+    <div class="lights-layer" id="lightsLayer">
+      <!-- Windows will be dynamically created here -->
+    </div>
+    
+    <!-- Vignette -->
+    <div class="vignette"></div>
+  </div>
+
+  <script>
+    // Window definitions (adjust percentages to match your architectural image)
+    const windows = [
+      // Top floor
+      { id: 'top-1', x: 25, y: 20, width: 8, height: 12 },
+      { id: 'top-2', x: 40, y: 20, width: 8, height: 12 },
+      { id: 'top-3', x: 55, y: 20, width: 8, height: 12 },
+      { id: 'top-4', x: 70, y: 20, width: 8, height: 12 },
+      // Bottom floor
+      { id: 'bottom-1', x: 25, y: 50, width: 8, height: 12 },
+      { id: 'bottom-2', x: 40, y: 50, width: 8, height: 12 },
+      { id: 'bottom-3', x: 55, y: 50, width: 8, height: 12 },
+      { id: 'bottom-4', x: 70, y: 50, width: 8, height: 12 },
+    ]
+
+    const litWindows = new Set()
+    let mouseX = 0
+    let mouseY = 0
+
+    // Create window elements
+    const lightsLayer = document.getElementById('lightsLayer')
+    windows.forEach(window => {
+      const windowEl = document.createElement('div')
+      windowEl.className = 'window'
+      windowEl.dataset.windowId = window.id
+      windowEl.style.left = `${window.x}%`
+      windowEl.style.top = `${window.y}%`
+      windowEl.style.width = `${window.width}%`
+      windowEl.style.height = `${window.height}%`
+
+      // Light effect
+      const lightEl = document.createElement('div')
+      lightEl.className = 'window-light'
+      lightEl.innerHTML = `
+        <div class="inner-glow"></div>
+        <div class="outer-spill"></div>
+        <div class="window-pane"></div>
+      `
+      windowEl.appendChild(lightEl)
+
+      // Hover highlight
+      const hoverEl = document.createElement('div')
+      hoverEl.className = 'hover-highlight'
+      windowEl.appendChild(hoverEl)
+
+      // Click handler
+      windowEl.addEventListener('click', () => {
+        const isLit = litWindows.has(window.id)
+        if (isLit) {
+          litWindows.delete(window.id)
+          lightEl.classList.remove('active')
+        } else {
+          litWindows.add(window.id)
+          lightEl.classList.add('active')
+        }
+      })
+
+      lightsLayer.appendChild(windowEl)
+    })
+
+    // Mouse parallax
+    document.addEventListener('mousemove', (e) => {
+      const centerX = window.innerWidth / 2
+      const centerY = window.innerHeight / 2
+      
+      mouseX = (e.clientX - centerX) / centerX
+      mouseY = (e.clientY - centerY) / centerY
+
+      const background = document.getElementById('background')
+      const lightsLayer = document.getElementById('lightsLayer')
+
+      // Background moves opposite to mouse (slower)
+      background.style.transform = `translate(${mouseX * -10}px, ${mouseY * -10}px)`
+      
+      // Lights layer moves at different depth
+      lightsLayer.style.transform = `translate(${mouseX * -5}px, ${mouseY * -5}px)`
+    })
+
+    // Subtle light flicker (optional)
+    setInterval(() => {
+      if (litWindows.size > 0) {
+        // Flicker is handled via CSS animation
+        // This interval can be used for more complex flicker logic if needed
+      }
+    }, 3000)
+  </script>
+</body>
+</html>
+
