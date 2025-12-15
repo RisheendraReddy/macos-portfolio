@@ -100,7 +100,7 @@ const MenuBar = ({
     setActiveMenu(null)
   }
 
-  const MenuDropdown = ({ menu, items }: { menu: string; items: Array<{ label: string; action?: () => void; shortcut?: string; divider?: boolean }> }) => {
+  const MenuDropdown = ({ menu, items }: { menu: string; items: Array<{ label?: string; action?: () => void; shortcut?: string; divider?: boolean }> }) => {
     if (activeMenu !== menu) return null
 
     return (

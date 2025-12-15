@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 const ParallaxWallpaper = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
