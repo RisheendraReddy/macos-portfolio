@@ -3,7 +3,7 @@ import MenuBar from './MenuBar'
 import Dock from './Dock'
 import Window from './Window'
 import Finder from './apps/Finder'
-import CinematicWallpaper from './CinematicWallpaper'
+import VideoWallpaper from './VideoWallpaper'
 import { useWindowManager } from '../hooks/useWindowManager'
 
 const Desktop = () => {
@@ -97,8 +97,8 @@ const Desktop = () => {
 
   return (
     <div className="fixed inset-0 overflow-hidden">
-      {/* Cinematic Wallpaper */}
-      <CinematicWallpaper />
+      {/* Video Wallpaper */}
+      <VideoWallpaper />
 
       {/* Menu Bar */}
       <MenuBar

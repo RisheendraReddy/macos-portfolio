@@ -106,7 +106,7 @@ const MenuBar = ({
     return (
       <div
         ref={(el) => (menuRefs.current[menu] = el)}
-        className="absolute top-7 left-0 bg-gray-800/95 backdrop-blur-xl border border-white/10 rounded-lg shadow-2xl py-2 min-w-[200px] z-50"
+        className="absolute top-7 left-0 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-lg shadow-2xl py-2 min-w-[200px] z-50"
         style={{ left: menu === 'Portfolio' ? '0' : undefined }}
       >
         {items.map((item, index) => {
@@ -129,7 +129,7 @@ const MenuBar = ({
   }
 
   return (
-    <div className="absolute top-0 left-0 right-0 h-7 bg-black/30 backdrop-blur-xl border-b border-white/10 z-50 flex items-center justify-between px-4 text-xs text-white/90">
+    <div className="absolute top-0 left-0 right-0 h-7 bg-white/10 backdrop-blur-2xl border-b border-white/20 z-50 flex items-center justify-between px-4 text-xs text-white/90 shadow-lg shadow-black/20">
       <div className="flex items-center gap-4 relative">
         <span className="font-semibold">{PORTFOLIO_NAME}</span>
         <div className="flex gap-3 relative">

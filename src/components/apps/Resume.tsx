@@ -2,9 +2,8 @@ import { Download } from 'lucide-react'
 
 const Resume = () => {
   const handleDownload = () => {
-    // In a real app, this would download the actual PDF
     const link = document.createElement('a')
-    link.href = '/Risheendra Reddy Boddu Resume Portfolio.pdf'
+    link.href = '/resume.pdf'
     link.download = 'Risheendra_Reddy_Boddu_Resume.pdf'
     link.click()
   }

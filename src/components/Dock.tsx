@@ -44,10 +44,22 @@ const Dock = ({ onOpenApp, windows }: DockProps) => {
     
     if (existingWindow) {
       if (existingWindow.isMinimized) {
+        // Restore minimized window
         onOpenApp({
           ...existingWindow,
           isMinimized: false,
           // Update content for Finder and Terminal to ensure they have onOpenApp prop
+          content: (app.id === 'finder' || app.id === 'terminal')
+            ? <app.component onOpenApp={onOpenApp} />
+            : existingWindow.content,
+        })
+      } else {
+        // Window is already open, just focus it (bring to front)
+        // This is handled by the window manager's focusWindow, but we need to trigger it
+        // Since we don't have direct access to focusWindow here, we'll restore the window which will bring it to front
+        onOpenApp({
+          ...existingWindow,
+          isMinimized: false,
           content: (app.id === 'finder' || app.id === 'terminal')
             ? <app.component onOpenApp={onOpenApp} />
             : existingWindow.content,
@@ -72,13 +84,19 @@ const Dock = ({ onOpenApp, windows }: DockProps) => {
   }
 
   const isAppOpen = (appId: string) => {
-    return windows.some((w) => w.id === appId && !w.isMinimized)
+    // Show indicator if window exists (even if minimized)
+    return windows.some((w) => w.id === appId)
+  }
+  
+  const isAppMinimized = (appId: string) => {
+    const window = windows.find((w) => w.id === appId)
+    return window?.isMinimized ?? false
   }
 
   return (
     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40">
       <motion.div
-        className="flex items-end gap-2 px-4 py-3 bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10"
+        className="flex items-end gap-2 px-4 py-3 bg-white/10 backdrop-blur-2xl rounded-2xl border border-white/20 shadow-lg shadow-black/20"
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3 }}
@@ -86,6 +104,7 @@ const Dock = ({ onOpenApp, windows }: DockProps) => {
         {apps.map((app) => {
           const Icon = app.icon
           const open = isAppOpen(app.id)
+          const minimized = isAppMinimized(app.id)
           const isHovered = hoveredApp === app.id
           
           return (
@@ -103,7 +122,7 @@ const Dock = ({ onOpenApp, windows }: DockProps) => {
                 <Icon size={56} />
               </div>
               {open && (
-                <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
+                <div className={`absolute -bottom-1 w-1 h-1 rounded-full ${minimized ? 'bg-white/50' : 'bg-white'}`} />
               )}
               
               {/* macOS-style tooltip label */}
@@ -116,14 +135,14 @@ const Dock = ({ onOpenApp, windows }: DockProps) => {
                     exit={{ opacity: 0, y: 5 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                   >
-                    <div className="px-3 py-1.5 bg-black/80 backdrop-blur-md rounded-md border border-white/10 shadow-lg">
+                    <div className="px-3 py-1.5 bg-white/10 backdrop-blur-2xl rounded-md border border-white/20 shadow-lg">
                       <span className="text-white text-xs font-medium whitespace-nowrap">
                         {app.name}
                       </span>
                     </div>
                     {/* Tooltip arrow */}
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                      <div className="w-2 h-2 bg-black/80 backdrop-blur-md border-r border-b border-white/10 transform rotate-45" />
+                      <div className="w-2 h-2 bg-white/10 backdrop-blur-2xl border-r border-b border-white/20 transform rotate-45" />
                     </div>
                   </motion.div>
                 )}
